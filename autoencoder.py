@@ -235,7 +235,13 @@ class Decoder(torch.nn.Module):
 
         self.relu = ME.MinkowskiReLU(inplace=True)
         self.pruning = ME.MinkowskiPruning()
-
+         # MinkowskiPruning 是 Minkowski Engine 中的一个类，它用于对稀疏张量进行修剪操作。
+         # 在处理稀疏数据时，我们可能只对某些数据点感兴趣，或者我们可能想要减少数据的数量以
+         # 降低计算复杂度。这时，我们就可以使用 MinkowskiPruning 来实现这个目标。
+         # 具体来说，MinkowskiPruning 接受一个稀疏张量和一个掩码作为输入，然后返回一个新的稀疏张量，
+         # 该稀疏张量只包含原始稀疏张量中由掩码指定的元素。例如，如果掩码的某个元素为 True，那么原
+         # 始稀疏张量中对应位置的元素就会被保留在新的稀疏张量中；如果掩码的某个元素为 False，那么原
+         # 始稀疏张量中对应位置的元素就会被丢弃。
     def prune_voxel(self, data, data_cls, nums, ground_truth, training):
         mask_topk = istopk(data_cls, nums)
         if training: 
