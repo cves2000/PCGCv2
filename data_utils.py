@@ -89,7 +89,7 @@ def isin(data, ground_truth):
     ground_truth = array2vector(ground_truth, step)
     mask = np.isin(data.cpu().numpy(), ground_truth.cpu().numpy())
 
-    return torch.Tensor(mask).bool().to(device)
+    return torch.Tensor(mask).bool().to(device)#将一个布尔向量转换为一个布尔类型的PyTorch张量，并将其移至原始设备
 
 def istopk(data, nums, rho=1.0):
     """ Input data is sparse tensor and nums is a list of shape [batch_size].
