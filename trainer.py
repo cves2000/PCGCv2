@@ -91,13 +91,15 @@ class Trainer():
         # return zero
         for k in self.record_set.keys(): 
             self.record_set[k] = []  
-        #代码的作用是将self.record_set字典中的每一项的值都重置为空列表，以便于下次使用。
+        #作用是将self.record_set字典中的每一项的值都重置为空列表，以便于下次使用。
         return 
 
     @torch.no_grad()
     def test(self, dataloader, main_tag='Test'):
-        self.logger.info('Testing Files length:' + str(len(dataloader)))
+        self.logger.info('Testing Files length:' + str(len(dataloader)))#打印
         for _, (coords, feats) in enumerate(tqdm(dataloader)):
+        #遍历数据加载器：这行代码遍历数据加载器中的每一个批次。其中，coords和feats分别是每个批次的坐标和特征。_是一个常用的占位符，表示我们不关心这个变量（在这里，它会是批次的索引）。
+        #tqdm是一个进度条库，用于显示数据加载的进度。
             # data
             x = ME.SparseTensor(features=feats.float(), coordinates=coords, device=device)
             # # Forward.
@@ -119,7 +121,7 @@ class Trainer():
             self.record_set['bpp'].append(bpp.item())
             self.record_set['sum_loss'].append(bce.item() + bpp.item())
             self.record_set['metrics'].append(metrics)
-            torch.cuda.empty_cache()# empty cache.
+            torch.cuda.empty_cache()# empty cache.清空CUDA缓存
 
         self.record(main_tag=main_tag, global_step=self.epoch)
 
