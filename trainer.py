@@ -123,7 +123,7 @@ class Trainer():
             self.record_set['metrics'].append(metrics)
             torch.cuda.empty_cache()# empty cache.清空CUDA缓存
 
-        self.record(main_tag=main_tag, global_step=self.epoch)
+        self.record(main_tag=main_tag, global_step=self.epoch)#求平均（bce等参数指标求均值）
 
         return 
 
@@ -146,7 +146,17 @@ class Trainer():
             out_set = self.model(x, training=True)
             # loss    
             bce, bce_list = 0, []
+            # 这段代码是在遍历数据加载器（dataloader）中的每一个批次，并对每一个批次的数据进行处理。以下是对这段代码的详细解释：
+            # 遍历数据加载器：for batch_step, (coords, feats) in enumerate(tqdm(dataloader)):这行代码遍历数据加载器中的每一个批次。其中，coords和feats分别是每个批次的坐标和特征。batch_step是批次的索引。tqdm是一个进度条库，用于显示数据加载的进度。        
+            # 优化器归零梯度：self.optimizer.zero_grad()这行代码将优化器中所有参数的梯度缓存清零。在PyTorch中，梯度会累积，所以在每个批次开始时，我们需要清零梯度。
+            # 数据处理：x = ME.SparseTensor(features=feats.float(), coordinates=coords, device=device)这行代码将每个批次的坐标和特征转换为一个稀疏张量。这是因为我们的模型是一个3D点云模型，它需要以稀疏张量的形式接收输入数据。
+            # 前向传播：out_set = self.model(x, training=True)这行代码将稀疏张量输入到模型中进行前向传播，并获取输出。这里的training=True表示我们当前是在训练模型。
+            # 初始化损失：bce, bce_list = 0, []这行代码初始化了二元交叉熵（BCE）的总值和列表。在后续的代码中，我们会计算每个输出类别和真实类别之间的BCE，并将它们添加到这个总值和列表中。
+            
+            
             for out_cls, ground_truth in zip(out_set['out_cls_list'], out_set['ground_truth_list']):
+            # 在Python中，zip是一个内置函数，它接收一些可迭代对象（如列表、元组等）作为参数，然后将这些可迭代对象中的元素按照顺序配对，形成一个新的迭代器。
+            # 例如，如果我们有两个列表a = [1, 2, 3]和b = ['a', 'b', 'c']，那么zip(a, b)会返回一个迭代器，这个迭代器的元素是(1, 'a')、(2, 'b')和(3, 'c')。
                 curr_bce = get_bce(out_cls, ground_truth)/float(out_cls.__len__())
                 # curr_bce = get_bce(out_cls, ground_truth)/float(x.__len__())
                 bce += curr_bce 
@@ -155,12 +165,15 @@ class Trainer():
             sum_loss = self.config.alpha * bce + self.config.beta * bpp
             # backward & optimize
             sum_loss.backward()
+            #反向传播：sum_loss.backward()这行代码执行反向传播过程。在PyTorch中，.backward()方法会计算损失函数关于模型参数的梯度。这些梯度用于在接下来的优化步骤中更新模型参数
             self.optimizer.step()
+            #优化：self.optimizer.step()这行代码执行优化步骤。在PyTorch中，优化器的.step()方法会根据之前计算的梯度来更新模型参数。这是训练神经网络的关键步骤，因为它使模型能够从数据中学习。
             # metric & record
             with torch.no_grad():
                 metrics = []
                 for out_cls, ground_truth in zip(out_set['out_cls_list'], out_set['ground_truth_list']):
                     metrics.append(get_metrics(out_cls, ground_truth))
+                #这部分代码计算了每个输出类别和真实类别之间的度度，并将这些度量添加到metrics列表中
                 self.record_set['bce'].append(bce.item())
                 self.record_set['bces'].append(bce_list)
                 self.record_set['bpp'].append(bpp.item())
@@ -170,10 +183,14 @@ class Trainer():
                     self.record(main_tag='Train', global_step=self.epoch*len(dataloader)+batch_step)
                     self.save_model()
                     start_time = time.time()
-            torch.cuda.empty_cache()# empty cache.
+                #检查时间并保存模型：如果训练时间超过了设定的检查时间，那么它会调用record方法来打印这些指标的平均值，并保存当前的模型
+            torch.cuda.empty_cache()# empty cache.清空CUDA缓存
 
         with torch.no_grad(): self.record(main_tag='Train', global_step=self.epoch*len(dataloader)+batch_step)
         self.save_model()
         self.epoch += 1
+        #记录并保存模型：在每个训练周期结束时，它会调用record方法来打印这些指标的平均值，并保存当前的模型
 
         return
+    # 在PyTorch中，torch.no_grad()是一个上下文管理器，它能够禁止在其作用范围内的代码执行梯度计算。这对于评估或测试模型很有用，因为在这些情况下我们通常只关心模型的输出，而不需要计算梯度或更新模型参数。
+    # torch.no_grad()被用在了计算度量和记录关键指标的部分。这是因为这些操作并不需要计算梯度，而且禁止梯度计算可以节省内存，提高计算速度。
