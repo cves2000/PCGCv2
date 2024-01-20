@@ -35,7 +35,7 @@ def get_metrics(data, groud_truth):#data groud_truth稀疏张量
     nums = [len(C) for C in groud_truth.decomposed_coordinates]
     #nums是一个一维列表，其中每个元素表示ground_truth中对应分解坐标的长度。具体来说，nums列表的长度等于ground_truth中分解坐标的数量，nums列表中的每个元素是对应分解坐标的长度。
     mask_pred = istopk(data, nums, rho=1.0)
-    #这一行调用了istopk函数，输入是data、nums和rho，返回一个布尔向量，表示data中的每个点是否在前k个点中
+    #这一行调用了istopk函数，输入是data、nums和rho，返回一个布尔向量，表示data中的每个点是否在前k个点中（对特征值进行排序 取前k个）个人理解：特征值越大意味着点云存在概率越大，通过将特征值较大的点云索引设置为true，来表示该点的预测为真
     metrics = get_cls_metrics(mask_pred, mask_real)
 
     return metrics[0]
