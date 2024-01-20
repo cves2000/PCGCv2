@@ -104,8 +104,15 @@ def istopk(data, nums, rho=1.0):
         mask[row_indices[indices]]=True
 
     return mask.bool().to(data.device)
-    # data中的前k个值是指data中的前k个点，而不仅仅是坐标。
-    # 具体来说，istopk(data, nums, rho=1.0)函数会对data中的每个点进行排序，然后选择前k个点。这里的k是由nums列表中的值决定的。这样，我们就得到了一个布尔向量mask_pred，表示data中的每个点是否在前k个点中。
+    # 这段代码定义了一个名为istopk的函数，它接受三个参数：data（一个稀疏张量），nums（一个形状为[batch_size]的列表）和rho（一个默认值为1.0的浮点数）。这个函数的目的是返回一个布尔向量，长度与data相同，其中元素为True的位置对应于data中的前k个值，其他位置为False。
+    # mask = torch.zeros(len(data), dtype=torch.bool)：这一行创建了一个全零的布尔向量mask，长度与data相同。
+    # row_indices_per_batch = data._batchwise_row_indices：这一行获取了data中每个批次的行索引。
+    # for row_indices, N in zip(row_indices_per_batch, nums):：这一行开始了一个循环，对于data中的每个批次和nums中的每个元素，执行以下操作：
+    # k = int(min(len(row_indices), N*rho))：这一行计算了k的值，k是要选择的前k个值的数量，等于row_indices的长度和N*rho中的较小值。
+    # _, indices = torch.topk(data.F[row_indices].squeeze().detach().cpu(), k)：这一行找出了data.F[row_indices]中的前k个最大值的索引。
+    # mask[row_indices[indices]]=True：这一行将mask中对应于前k个最大值的位置设置为True。
+    # return mask.bool().to(data.device)：这一行返回了布尔向量mask，并确保它在与data相同的设备上。
+    # data中的前k个值是指data中的前k个点(从大到小k个特征值)，而不仅仅是坐标。
     # 所以，data中的前k个值实际上是指data中的前k个点，每个点包括一个3D坐标和一些相关的特征。
 def sort_spare_tensor(sparse_tensor):
     """ Sort points in sparse tensor according to their coordinates.
