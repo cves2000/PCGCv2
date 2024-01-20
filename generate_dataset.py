@@ -1,3 +1,4 @@
+#用于从3D网格模型中采样点云，并将这些点云保存为PLY或H5格式的文件
 import open3d as o3d
 import numpy as np
 import random
