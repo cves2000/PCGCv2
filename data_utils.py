@@ -104,7 +104,9 @@ def istopk(data, nums, rho=1.0):
         mask[row_indices[indices]]=True
 
     return mask.bool().to(data.device)
-
+    # data中的前k个值是指data中的前k个点，而不仅仅是坐标。
+    # 具体来说，istopk(data, nums, rho=1.0)函数会对data中的每个点进行排序，然后选择前k个点。这里的k是由nums列表中的值决定的。这样，我们就得到了一个布尔向量mask_pred，表示data中的每个点是否在前k个点中。
+    # 所以，data中的前k个值实际上是指data中的前k个点，每个点包括一个3D坐标和一些相关的特征。
 def sort_spare_tensor(sparse_tensor):
     """ Sort points in sparse tensor according to their coordinates.
     """
