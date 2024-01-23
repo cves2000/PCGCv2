@@ -19,37 +19,38 @@ class CoordinateCoder():
     def __init__(self, filename):
         self.filename = filename
         self.ply_filename = filename + '.ply'
-
+    #__init__方法：初始化函数，接收两个参数，一个是文件名，另一个是熵模型。这个方法将文件名和熵模型保存为类的属性。
     def encode(self, coords, postfix=''):
-        coords = coords.numpy().astype('int')
-        write_ply_ascii_geo(filedir=self.ply_filename, coords=coords)
-        gpcc_encode(self.ply_filename, self.filename+postfix+'_C.bin')
-        os.system('rm '+self.ply_filename)
+        coords = coords.numpy().astype('int')#将coords转换为NumPy数组，并将其元素类型转换为整数。
+        write_ply_ascii_geo(filedir=self.ply_filename, coords=coords)#调用write_ply_ascii_geo函数，将坐标写入一个.ply文件。
+        gpcc_encode(self.ply_filename, self.filename+postfix+'_C.bin')#调用gpcc_encode函数，对.ply文件进行编码，生成一个二进制文件。
+        os.system('rm '+self.ply_filename)#使用os.system函数执行一个系统命令，删除.ply文件。
         
         return 
 
     def decode(self, postfix=''):
         gpcc_decode(self.filename+postfix+'_C.bin', self.ply_filename)
-        coords = read_ply_ascii_geo(self.ply_filename)
-        os.system('rm '+self.ply_filename)
+        coords = read_ply_ascii_geo(self.ply_filename)#调用read_ply_ascii_geo函数，从.ply文件中读取坐标。
+        os.system('rm '+self.ply_filename)#使用os.system函数执行一个系统命令，删除.ply文件。
         
-        return coords
+        return coords#返回读取的坐标。
 
 
 class FeatureCoder():
     """encode/decode feature using learned entropy model
     """
+    #这段代码定义了一个名为FeatureCoder的类，该类用于使用学习的熵模型对特征进行编码和解码。
     def __init__(self, filename, entropy_model):
         self.filename = filename
         self.entropy_model = entropy_model.cpu()
 
-    def encode(self, feats, postfix=''):
-        strings, min_v, max_v = self.entropy_model.compress(feats.cpu())
+    def encode(self, feats, postfix=''):#接收两个参数：feats和postfix，其中postfix的默认值为空字符串
+        strings, min_v, max_v = self.entropy_model.compress(feats.cpu())#使用熵模型对特征进行压缩，得到压缩后的字符串、最小值和最大值
         shape = feats.shape
-        with open(self.filename+postfix+'_F.bin', 'wb') as fout:
-            fout.write(strings)
+        with open(self.filename+postfix+'_F.bin', 'wb') as fout:#打开一个以self.filename+postfix+'_F.bin'命名的二进制文件，准备写入数据，'wb'是文件的打开模式，w表示写入模式，b表示二进制模式。所以，'wb'表示以二进制写入模式打开文件
+            fout.write(strings)#将压缩后的字符串写入文件
         with open(self.filename+postfix+'_H.bin', 'wb') as fout:
-            fout.write(np.array(shape, dtype=np.int32).tobytes())
+            fout.write(np.array(shape, dtype=np.int32).tobytes())#将特征的形状转换为NumPy数组，然后转换为字节流，写入文件。
             fout.write(np.array(len(min_v), dtype=np.int8).tobytes())
             fout.write(np.array(min_v, dtype=np.float32).tobytes())
             fout.write(np.array(max_v, dtype=np.float32).tobytes())
@@ -60,12 +61,12 @@ class FeatureCoder():
         with open(self.filename+postfix+'_F.bin', 'rb') as fin:
             strings = fin.read()
         with open(self.filename+postfix+'_H.bin', 'rb') as fin:
-            shape = np.frombuffer(fin.read(4*2), dtype=np.int32)
-            len_min_v = np.frombuffer(fin.read(1), dtype=np.int8)[0]
+            shape = np.frombuffer(fin.read(4*2), dtype=np.int32)#从文件中读取8个字节的内容，将其转换为np.int32类型的NumPy数组，然后将其形状赋值给变量shape
+            len_min_v = np.frombuffer(fin.read(1), dtype=np.int8)[0]#从文件中读取1个字节的内容，将其转换为np.int8类型的NumPy数组，然后将其第一个元素赋值给变量len_min_v。
             min_v = np.frombuffer(fin.read(4*len_min_v), dtype=np.float32)[0]
-            max_v = np.frombuffer(fin.read(4*len_min_v), dtype=np.float32)[0]
+            max_v = np.frombuffer(fin.read(4*len_min_v), dtype=np.float32)[0]#从文件中读取4*len_min_v个字节的内容，将其转换为np.float32类型的NumPy数组，然后将其第一个元素赋值给变量max_v
             
-        feats = self.entropy_model.decompress(strings, min_v, max_v, shape, channels=shape[-1])
+        feats = self.entropy_model.decompress(strings, min_v, max_v, shape, channels=shape[-1])#使用熵模型对字符串进行解压缩，得到特征。
         
         return feats
 
