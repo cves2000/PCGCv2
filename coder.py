@@ -112,7 +112,7 @@ class Coder():
 
         return out
 
-if __name__ == '__main__':
+if __name__ == '__main__':#对3D点云进行编码和解码，然后计算编码和解码的效率以及解码后的点云与原始点云之间的误差
     import argparse
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -126,8 +126,8 @@ if __name__ == '__main__':
 
     # load data
     start_time = time.time()
-    x = load_sparse_tensor(filedir, device)
-    print('Loading Time:\t', round(time.time() - start_time, 4), 's')
+    x = load_sparse_tensor(filedir, device)#用load_sparse_tensor函数，加载点云数据。
+    print('Loading Time:\t', round(time.time() - start_time, 4), 's')#打印加载数据所花费的时间。
 
     outdir = './output'
     if not os.path.exists(outdir): os.makedirs(outdir)
@@ -139,8 +139,8 @@ if __name__ == '__main__':
     print('='*10, 'Test', '='*10)
     model = PCCModel().to(device)
     assert os.path.exists(args.ckptdir)
-    ckpt = torch.load(args.ckptdir)
-    model.load_state_dict(ckpt['model'])
+    ckpt = torch.load(args.ckptdir)#加载检查点。
+    model.load_state_dict(ckpt['model'])#从检查点中加载模型的状态。
     print('load checkpoint from \t', args.ckptdir)
 
     # coder
@@ -148,7 +148,7 @@ if __name__ == '__main__':
 
     # down-scale
     if args.scaling_factor!=1: 
-        x_in = scale_sparse_tensor(x, factor=args.scaling_factor)
+        x_in = scale_sparse_tensor(x, factor=args.scaling_factor)#如果缩放因子不等于1，那么对点云进行缩放。
     else: 
         x_in = x
 
@@ -172,14 +172,20 @@ if __name__ == '__main__':
     bpps = (bits/len(x)).round(3)
     print('bits:\t', bits, '\nbpps:\t', bpps)
     print('bits:\t', sum(bits), '\nbpps:\t',  sum(bpps).round(3))
-
+    # 这段代码是用来计算比特率的。比特率是一个衡量数据传输或处理速度的指标，通常用位/秒（bit/s）或其倍数单位表示。在这个上下文中，比特率是指每个点云点所占用的位数。下面是每一行代码的详细解释：   
+    # bits = np.array([os.path.getsize(filename + postfix)*8 for postfix in ['_C.bin', '_F.bin', '_H.bin', '_num_points.bin']])：这行代码计算了四个文件（坐标文件、特征文件、头文件和点数文件）的大小（以位为单位）。os.path.getsize(filename + postfix)返回文件的大小（以字节为单位），然后乘以8将字节转换为位。  
+    # bpps = (bits/len(x)).round(3)：这行代码计算了比特率，即每个点云点所占用的位数。len(x)返回点云中的点数，bits/len(x)计算了每个点云点所占用的位数，然后round(3)将结果四舍五入到小数点后三位。  
+    # print('bits:\t', bits, '\nbpps:\t', bpps)：这行代码打印了每个文件的大小（以位为单位）和比特率。   
+    # print('bits:\t', sum(bits), '\nbpps:\t',  sum(bpps).round(3))：这行代码计算了所有文件的总大小（以位为单位）和总比特率，然后打印了结果。
+    # 这段代码的目的是评估点云压缩的效率：比特率越低，表示压缩效率越高。
+   
     # distortion
     start_time = time.time()
-    write_ply_ascii_geo(filename+'_dec.ply', x_dec.C.detach().cpu().numpy()[:,1:])
+    write_ply_ascii_geo(filename+'_dec.ply', x_dec.C.detach().cpu().numpy()[:,1:])#将解码后的点云写入一个.ply文件。
     print('Write PC Time:\t', round(time.time() - start_time, 3), 's')
 
     start_time = time.time()
-    pc_error_metrics = pc_error(args.filedir, filename+'_dec.ply', res=args.res, show=False)
-    print('PC Error Metric Time:\t', round(time.time() - start_time, 3), 's')
+    pc_error_metrics = pc_error(args.filedir, filename+'_dec.ply', res=args.res, show=False)#计算点云的误差
+    print('PC Error Metric Time:\t', round(time.time() - start_time, 3), 's')#打印计算误差所花费的时间
     # print('pc_error_metrics:', pc_error_metrics)
-    print('D1 PSNR:\t', pc_error_metrics["mseF,PSNR (p2point)"][0])
+    print('D1 PSNR:\t', pc_error_metrics["mseF,PSNR (p2point)"][0])#打印点对点的峰值信噪比（PSNR）。
