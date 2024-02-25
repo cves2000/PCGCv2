@@ -87,13 +87,6 @@ def traverse_path_recursively(rootdir):
 
     return filedirs
     # traverse_path_recursively(rootdir) 函数用于递归遍历指定目录下的所有文件和子目录，并返回一个包含所有文件路径的列表。
-    # 在 if __name__ == "__main__": 语句块中，我们执行以下操作：
-    # 设置网格模型文件的根目录 mesh_rootdir 和点云文件保存的根目录 pc_rootdir。
-    # 指定输出文件类型为 ‘ply’ 或 ‘h5’。
-    # 设置要处理的网格模型数量 num_mesh，采样点数 n_points，以及归一化分辨率 resolution。
-    # 我们获取了所有网格模型文件的路径，并筛选出扩展名为 ‘.off’ 或 ‘.obj’ 的文件，存储在 mesh_filedirs 列表中。
-    # 随机选择 num_mesh 个网格模型文件。
-    # 如果点云文件保存的目录不存在，我们创建该目录。
 
 if __name__ == "__main__":
     mesh_rootdir = "/home/ubuntu/HardDisk1/ModelNet40/"
@@ -111,6 +104,13 @@ if __name__ == "__main__":
     if not os.path.exists(pc_rootdir): os.makedirs(pc_rootdir)
 
     generate_dataset(mesh_filedirs, pc_rootdir, out_filetype, n_points, resolution)
+    # 在 if __name__ == "__main__": 语句块中，我们执行以下操作：
+    # 设置网格模型文件的根目录 mesh_rootdir 和点云文件保存的根目录 pc_rootdir。
+    # 指定输出文件类型为 ‘ply’ 或 ‘h5’。
+    # 设置要处理的网格模型数量 num_mesh，采样点数 n_points，以及归一化分辨率 resolution。
+    # 我们获取了所有网格模型文件的路径，并筛选出扩展名为 ‘.off’ 或 ‘.obj’ 的文件，存储在 mesh_filedirs 列表中。
+    # 随机选择 num_mesh 个网格模型文件。
+    # 如果点云文件保存的目录不存在，我们创建该目录。
     # 最后，我们调用 generate_dataset 函数，将每个网格模型转换为点云并保存为指定的文件类型。
     
 
