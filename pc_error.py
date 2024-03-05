@@ -52,7 +52,14 @@ def pc_error(infile1, infile2, res, normal=False, show=False):
                       "mseF      (p2plane)", "mseF,PSNR (p2plane)"]
 
     headers = headers1 + headers2 + headersF + haders_p2plane
-
+    # headers1：这是一个包含了点对点（Point-to-Point）误差的均方误差（Mean Squared Error）和峰值信噪比（Peak Signal-to-Noise Ratio）的列表，以及Hausdorff距离和其对应的峰值信噪比。
+    # headers2：这是一个类似于headers1的列表，但它是用来计算第二个点云数据的误差。
+    # headersF：这是一个包含了点对点误差的均方误差和峰值信噪比，以及Hausdorff距离和其对应的峰值信噪比的列表。这些计算是基于输入的两个点云数据的。
+    # haders_p2plane：这是一个包含了点对平面（Point-to-Plane）误差的均方误差和峰值信噪比的列表。
+    # h：在这个上下文中，h可能是指Hausdorff距离。Hausdorff距离是一个用来衡量两个点集之间的距离的度量，它被定义为从一个点集到另一个点集的所有点的最短距离的最大值。
+    # mse1和mse2对应的是两个点云数据集。具体来说：
+    # mse1是指第一个点云数据集的误差。它是通过计算第一个点云数据集中的点与其对应的点（在第二个点云数据集中）之间的距离，然后取这些距离的平方的平均值得到的。
+    # mse2是指第二个点云数据集的误差。它是通过计算第二个点云数据集中的点与其对应的点（在第一个点云数据集中）之间的距离，然后取这些距离的平方的平均值得到的。
     command = str(rootdir+'/pc_error_d' + 
                           ' -a '+infile1+ 
                           ' -b '+infile2+ 
