@@ -135,3 +135,14 @@ if __name__ == '__main__':
     plt.legend(loc='lower right')#显示图例。
     fig.savefig(os.path.join(args.resultdir, filename+'.jpg'))#将图保存为文件。
 
+resolution（分辨率）: 这个参数通常用于指定生成的图像或数据的详细程度。在这个上下文中，它可能是指点云数据的分辨率。
+bpp（Bits Per Pixel）: 这是一个衡量图像质量的指标，表示每个像素用多少比特来存储。在这个代码中，bpp是用来计算和绘制RD曲线（Rate-Distortion curve，比特率-失真曲线）的。
+res（Resolution）: 这个参数和上面的resolution是一样的，都是指分辨率。
+rho：这个参数在代码中的解释是"the ratio of the number of output points to the number of input points"，也就是输出点数和输入点数的比例。
+p2point（Point-to-Point）和p2plane（Point-to-Plane）: 这两个参数在计算点云数据的误差时使用。p2point是指点对点的误差，p2plane是指点对平面的误差。在这个代码中，它们被用来计算和绘制RD曲线。
+mse1 (p2point)：这是点对点（Point-to-Point）误差的均方误差（Mean Squared Error）。它是通过计算输入点云和输出点云之间每个点的距离的平方和的平均值得到的。
+mse1,PSNR (p2point)：这是点对点误差的峰值信噪比（Peak Signal-to-Noise Ratio）。它是一个常用的评价图像质量的指标，计算方法是20乘以对数（以10为底）的信号最大可能功率和均方误差的比值。
+mse1 (p2plane)：这是点对平面（Point-to-Plane）误差的均方误差。它是通过计算输入点云中的每个点到输出点云中最近平面的距离的平方和的平均值得到的。
+mse1,PSNR (p2plane)：这是点对平面误差的峰值信噪比。
+h. 1(p2point)：这个参数的具体含义可能需要更多的上下文信息，但从名字来看，它可能是某种基于点对点距离的度量。
+h.,PSNR 1(p2point)：这个参数的具体含义也可能需要更多的上下文信息，但从名字来看，它可能是某种基于点对点距离的峰值信噪比度量。
